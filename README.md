@@ -1,6 +1,6 @@
-# feature-flag-service
+# qry-lakehouse-maintainer
 
-把功能开关的定义、目标环境、灰度比例、生效时间窗口和变更历史记录成可查询的服务，支持按环境和标记评估开关状态并追溯配置变更。
+把数据湖表的快照、清单文件、保留周期与维护任务记录成可查询的服务，支持按表评估过期快照、提交清理与小文件合并并跟踪维护进度。
 
 ## 运行要求
 
@@ -20,7 +20,7 @@ go run .
 | 变量 | 默认值 | 用途 |
 |---|---|---|
 | `ADDR` | `127.0.0.1:8080` | HTTP 监听地址 |
-| `DB_PATH` | `feature-flag-service.db` | SQLite 数据库文件路径 |
+| `DB_PATH` | `qry-lakehouse-maintainer.db` | SQLite 数据库文件路径 |
 
 ## 已公开的入口
 
