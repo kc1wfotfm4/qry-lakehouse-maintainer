@@ -8,12 +8,14 @@ import (
 	"github.com/kc1wfotfm4/qry-lakehouse-maintainer/internal/store"
 )
 
-// NewRouter wires the public HTTP surface. Only the health entry is published today; the service
-// contract in README.md describes the error shape every entry must keep.
+// NewRouter wires the public HTTP surface: the health entry plus the snapshot
+// registration, expiry listing and maintenance task routes.
 func NewRouter(st *store.Store) *gin.Engine {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
 	router.Use(gin.Recovery())
+
+	h := &handler{st: st}
 
 	router.GET("/healthz", func(c *gin.Context) {
 		if err := st.Ping(); err != nil {
@@ -22,6 +24,11 @@ func NewRouter(st *store.Store) *gin.Engine {
 		}
 		c.JSON(http.StatusOK, gin.H{"status": "ok", "database": "ok"})
 	})
+
+	router.POST("/api/v1/lake-tables/:id/snapshots", h.registerSnapshot)
+	router.GET("/api/v1/lake-tables/:id/expired", h.listExpiredSnapshots)
+	router.POST("/api/v1/maintenance", h.createMaintenanceTask)
+	router.GET("/api/v1/maintenance/:taskId", h.getMaintenanceTask)
 
 	router.NoRoute(func(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": gin.H{"code": "route_not_found", "message": "no route matches this path"}})
